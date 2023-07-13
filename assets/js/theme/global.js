@@ -14,6 +14,7 @@ import privacyCookieNotification from './global/cookieNotification';
 import carousel from './common/carousel';
 import svgInjector from './global/svg-injector';
 
+
 export default class Global extends PageManager {
     onReady() {
         const { cartId, secureBaseUrl } = this.context;

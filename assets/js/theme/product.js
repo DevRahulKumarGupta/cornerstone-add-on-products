@@ -8,6 +8,7 @@ import ProductDetails from './common/product-details';
 import videoGallery from './product/video-gallery';
 import { classifyForm } from './common/utils/form-utils';
 import modalFactory from './global/modal';
+import './custom/product'
 
 export default class Product extends PageManager {
     constructor(context) {
