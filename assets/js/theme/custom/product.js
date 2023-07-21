@@ -5,7 +5,7 @@ import utils from '@bigcommerce/stencil-utils';
 export default class CustomProduct extends PageManager {
   constructor(context) {
     super(context);
-    this.storeFontApi = context.myProductNameId;
+    this.storeFontApi = context.myProductNameId
   }
 
   async onReady() {
@@ -20,13 +20,13 @@ export default class CustomProduct extends PageManager {
 
     if (ids && checkboxDiv) {
       async function makeBox(ids, storeFontApi) {
-        const products = await fetchProductsWithjquerry(ids, storeFontApi);
-        const checkboxesHTML = products.map(product => `
-          <input type="checkbox" id="${product.id}" name="${product.title}" value="${product.price}" class="form-checkbox">
-          <label for="${product.id}" value="${product.price}" class="form-label form-label--alternate form-label--inlineSmall">
-            ${product.title} <strong> $${product.price} </strong>
-          </label><br>
-        `).join('');
+        const products = (await fetchProductsWithjquerry(ids, storeFontApi))
+        let checkboxesHTML = '';
+
+        products.forEach(function (product) {
+          checkboxesHTML += '<input type="checkbox" id="' + product.id + '" name="' + product.title + '" value="' + product.price + '"class="form-checkbox" >' +
+            '<label for="' + product.id + '" value="' + product.price + '" class="form-label form-label--alternate form-label--inlineSmall">' + product.title + ' <strong> $' + product.price + ' </strong></label><br>';
+        });
 
         checkboxDiv.innerHTML = checkboxesHTML;
         addCheckboxEventListeners();
@@ -36,14 +36,13 @@ export default class CustomProduct extends PageManager {
 
       function addCheckboxEventListeners() {
         const checkboxes = checkboxDiv.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-          checkbox.addEventListener('change', event => {
-            const amount = Number(event.target.value.replace('$', ''));
+        checkboxes.forEach(function (checkbox) {
+          checkbox.addEventListener('change', function (event) {
             if (event.target.checked) {
-              changingPriceValue(amount, "add");
+              changingPriceValue(Number(event.target.value.replace('$', '')), "add");
               idsList.unshift(event.target.id);
             } else {
-              changingPriceValue(amount, "subtract");
+              changingPriceValue(Number(event.target.value.replace('$', '')), "subtract");
               idsList.splice(idsList.indexOf(event.target.id), 1);
             }
           });
@@ -60,77 +59,92 @@ export default class CustomProduct extends PageManager {
       if (mode === "subtract") {
         amountPrice -= amount;
       }
-      changingPrice.innerText = `$${amountPrice}`;
+      if (mode === "load") {
+        changingPrice.innerText = "$" + amountPrice;
+      }
+      changingPrice.innerText = "$" + amountPrice;
     }
 
     changingPriceValue(0, "load");
 
-    document.getElementById("addToCartNormal").addEventListener("click", async () => {
-      const productIds = idsList; // Example array of product IDs
+    document.getElementById("addToCartNormal").addEventListener("click", function () {
+      var productIds = idsList; // Example array of product IDs
 
       // Function to add a product to the cart
-      async function addToCart(productId) {
-        try {
-          await fetch(`/cart.php?action=add&product_id=${productId}`);
-        } catch (error) {
-          console.error('Error:', error);
-          throw error; // Throw the error to be handled elsewhere if needed
-        }
+      function addToCart(productId) {
+        return new Promise(function (resolve, reject) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", "/cart.php?action=add&product_id=" + productId);
+          xhr.onload = function () {
+            if (xhr.status === 200) {
+              resolve();
+            } else {
+              reject(xhr.statusText);
+            }
+          };
+          xhr.send();
+        });
       }
 
-      // Use Promise.all to run multiple addToCart requests concurrently
-      try {
-        await Promise.all(productIds.map(productId => addToCart(productId)));
+      // Iterate over the product IDs and make the requests in sequence
+      var sequence = Promise.resolve();
+      productIds.forEach(function (productId) {
+        sequence = sequence.then(function () {
+          return addToCart(productId);
+        });
+      });
+
+      // After all requests are completed, go to the cart
+      sequence.then(function () {
         document.getElementById('addToCartSubmit').click();
-      } catch (error) {
+      }).catch(function (error) {
         console.error('Error:', error);
-      }
+      });
     });
 
     async function fetchProductsWithjquerry(productIds, storeFontApi) {
-      const Authorization = storeFontApi;
+      let Authorization = storeFontApi
       const query = `
-        query SrcsetImages($productIds: [Int!]!) {
-          site {
-            products(entityIds: $productIds) {
-              edges {
-                node {
-                  entityId
-                  name
-                  # Add more fields you want to retrieve for each product here
-                  prices {
-                    price {
+      query SrcsetImages($productIds: [Int!]!) {
+        site {
+          products(entityIds: $productIds) {
+            edges {
+              node {
+                entityId
+                name
+                # Add more fields you want to retrieve for each product here
+                prices {
+                  price {
+                    ...MoneyFields
+                  }
+                  priceRange {
+                    min {
                       ...MoneyFields
                     }
-                    priceRange {
-                      min {
-                        ...MoneyFields
-                      }
-                      max {
-                        ...MoneyFields
-                      }
-                    }
-                    salePrice {
+                    max {
                       ...MoneyFields
                     }
-                    retailPrice {
-                      ...MoneyFields
+                  }
+                  salePrice {
+                    ...MoneyFields
+                  }
+                  retailPrice {
+                    ...MoneyFields
+                  }
+                  saved {
+                    ...MoneyFields
+                  }
+                  bulkPricing {
+                    minimumQuantity
+                    maximumQuantity
+                    ... on BulkPricingFixedPriceDiscount {
+                      price
                     }
-                    saved {
-                      ...MoneyFields
+                    ... on BulkPricingPercentageDiscount {
+                      percentOff
                     }
-                    bulkPricing {
-                      minimumQuantity
-                      maximumQuantity
-                      ... on BulkPricingFixedPriceDiscount {
-                        price
-                      }
-                      ... on BulkPricingPercentageDiscount {
-                        percentOff
-                      }
-                      ... on BulkPricingRelativePriceDiscount {
-                        priceAdjustment
-                      }
+                    ... on BulkPricingRelativePriceDiscount {
+                      priceAdjustment
                     }
                   }
                 }
@@ -138,12 +152,13 @@ export default class CustomProduct extends PageManager {
             }
           }
         }
-      
-        fragment MoneyFields on Money {
-          value
-          currencyCode
-        }
-      `;
+      }
+    
+      fragment MoneyFields on Money {
+        value
+        currencyCode
+      }
+    `;
 
       try {
         const response = await fetch('/graphql', {
@@ -154,16 +169,22 @@ export default class CustomProduct extends PageManager {
             'Authorization': `Bearer ${Authorization}` // use auto-generated token
           },
           body: JSON.stringify({
-            query,
-            variables: { productIds }
+            query: query,
+            variables: {
+              productIds: productIds
+            }
           })
         });
 
-        const { data } = await response.json();
-        return data.site.products.edges.map(edge => {
-          const { entityId: id, name: title, prices: { price: { value: price } } } = edge.node;
-          return { id, title, price };
-        });
+        const data = await response.json();
+        let ProductData = [];
+
+        for (let i in data.data.site.products.edges) {
+          let singleProduct = data.data.site.products.edges[i].node;
+          ProductData.push({ id: singleProduct.entityId, title: singleProduct.name, price: singleProduct.prices.price.value });
+        }
+
+        return ProductData;
       } catch (error) {
         console.error(error);
         throw error; // Throw the error to be handled elsewhere if needed
