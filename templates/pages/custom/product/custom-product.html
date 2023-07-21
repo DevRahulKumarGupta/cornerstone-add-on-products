@@ -359,12 +359,17 @@ product:
                     {{#if theme_settings.show_custom_fields_tabs '!==' true}}
                     <div class="form-field">
                         {{#each product.custom_fields}}
+                        {{#if name '!==' 'upsell_products'}}
+                        <dt class="productView-info-name">{{name}}:</dt>
+                        <dd class="productView-info-value">{{{value}}}</dd>
+                        {{/if}}
+                        {{/each}}
+                        {{#filter product.custom_fields 'upsell_products' property='name' }}
                         <dt class="form-label form-label--alternate form-label--inlineSmall" id="{{name}}"></dt>
                         <dd class="productView-info-value" id="customProductIds" value="{{{value}}}"></dd>
-                        {{/each}}
+                        {{/filter}}    
                     </div>
-                 
-    
+
                 {{/if}}
                 </div>
                 <div class="form-field form-field--stock{{#unless product.stock_level}} u-hiddenVisually{{/unless}}">
@@ -374,7 +379,7 @@ product:
                     </label>
                 </div>
                
-                
+
 
                 <!-- {{> components/products/add-to-cart with_wallet_buttons=true}} -->
 

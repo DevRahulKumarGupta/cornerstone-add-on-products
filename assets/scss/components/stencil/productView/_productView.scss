@@ -242,6 +242,7 @@
 
 .productView-info-name,
 .productView-info-value {
+    font-size: 1rem;
     float: left;
 
     @include breakpoint("small") {
