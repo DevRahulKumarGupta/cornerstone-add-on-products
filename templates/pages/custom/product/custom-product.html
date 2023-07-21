@@ -10,6 +10,7 @@ product:
         limit: {{theme_settings.productpage_similar_by_views_count}}
 ---
 {{inject 'productId' product.id}}
+{{inject "myProductNameId" settings.storefront_api.token}}
 
 {{#partial "page"}}
 
@@ -358,7 +359,7 @@ product:
                     {{#if theme_settings.show_custom_fields_tabs '!==' true}}
                     <div class="form-field">
                         {{#each product.custom_fields}}
-                        <dt class="productView-info-name" id="{{name}}"></dt>
+                        <dt class="form-label form-label--alternate form-label--inlineSmall" id="{{name}}"></dt>
                         <dd class="productView-info-value" id="customProductIds" value="{{{value}}}"></dd>
                         {{/each}}
                     </div>
@@ -492,8 +493,7 @@ product:
 
         {{> components/products/tabs}}
     </div>
-
-
+          
     {{> components/products/schema}}
 {{/partial}}
 {{> layout/base}}
