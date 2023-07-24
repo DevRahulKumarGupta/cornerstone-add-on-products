@@ -459,3 +459,139 @@
         width: auto;
     }
 }
+
+
+/* Custom Checkbox */
+.custom-checkbox {
+    position: relative;
+    cursor: pointer;
+  
+    input {
+      opacity: 1;
+      cursor: pointer;
+      height: 2rem;
+      width: 2rem;
+    }
+  
+    .checkmark {
+      height: 25px;
+      width: 25px;
+      background-color: #fff;
+      border: 2px solid #000;
+    }
+  
+    &:hover input ~ .checkmark {
+      background-color: #ccc;
+    }
+  
+    input:checked ~ .checkmark {
+      background-color: #007bff;
+    }
+  
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+  
+    input:checked ~ .checkmark:after {
+      display: block;
+    }
+  
+    .checkmark:after {
+      left: 9px;
+      top: 5px;
+      width: 5px;
+      height: 10px;
+      border: solid #fff;
+      border-width: 0 3px 3px 0;
+      transform: rotate(45deg);
+    }
+  }
+  
+  /* CSS for the product carousel */
+  .product-card {
+    text-align: center;
+    padding: 15px;
+    height: 215px; /* Set a fixed height for the product cards */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  
+    .product-image {
+      max-width: 150px;
+      max-height: 100px; /* Set a fixed height for the product images */
+      margin: 0 auto 10px;
+    }
+  
+    .product-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+  
+    .product-price {
+      color: #007bff;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+  
+    .add-to-cart-btn {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+  
+  /* Slick Carousel styles */
+  #product-carousel {
+    margin: 0 -10px;
+  
+    .slick-prev {
+      left: 0;
+    }
+  
+    .slick-next {
+      right: 0;
+    }
+  
+    .slick-prev:focus,
+    .slick-prev:hover,
+    .slick-next:focus,
+    .slick-next:hover {
+      outline: none;
+      outline: 0;
+      border: 0;
+    }
+  
+    .slick-next::before, .slick-prev::before {
+      width: 10px;
+    }
+  }
+  
+  /* Responsive styles for the product carousel */
+  @media (max-width: 1024px) {
+    .product-card {
+      height: 200px; /* Adjust the height for smaller screens */
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .product-card {
+      height: 210px; /* Further reduce the height for smaller screens */
+    }
+  }
+  
+  

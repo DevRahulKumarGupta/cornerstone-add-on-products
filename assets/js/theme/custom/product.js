@@ -1,6 +1,7 @@
 import { async } from 'regenerator-runtime';
 import PageManager from '../page-manager';
 import utils from '@bigcommerce/stencil-utils';
+import generateProductCards from './customslider'
 
 export default class CustomProduct extends PageManager {
   constructor(context) {
@@ -21,19 +22,22 @@ export default class CustomProduct extends PageManager {
     if (ids && checkboxDiv) {
       async function makeBox(ids, storeFontApi) {
         const products = (await fetchProductsWithjquerry(ids, storeFontApi))
-        let checkboxesHTML = '';
-
-        products.forEach(function (product) {
-          checkboxesHTML += '<input type="checkbox" id="' + product.id + '" name="' + product.title + '" value="' + product.price + '"class="form-checkbox" >' +
-            '<label for="' + product.id + '" value="' + product.price + '" class="form-label form-label--alternate form-label--inlineSmall">' + product.title + ' <strong> $' + product.price + ' </strong></label><br>';
-        });
-
+        let checkboxesHTML = generateProductCards(products)
+       
         checkboxDiv.innerHTML = checkboxesHTML;
         addCheckboxEventListeners();
+        initializeCarousel();
       }
 
       makeBox(ids, this.storeFontApi);
-
+      function initializeCarousel() {
+        $('#customProductIds').slick({
+          slidesToShow: 3,
+          slidesToScroll: 1,
+          prevArrow: '<button type="button" class="slick-prev"></button>',
+          nextArrow: '<button type="button" class="slick-next"></button>',
+        });
+      }
       function addCheckboxEventListeners() {
         const checkboxes = checkboxDiv.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach(function (checkbox) {
@@ -112,6 +116,9 @@ export default class CustomProduct extends PageManager {
               node {
                 entityId
                 name
+                defaultImage {
+                url(width: 1280)
+              }
                 # Add more fields you want to retrieve for each product here
                 prices {
                   price {
@@ -181,7 +188,8 @@ export default class CustomProduct extends PageManager {
 
         for (let i in data.data.site.products.edges) {
           let singleProduct = data.data.site.products.edges[i].node;
-          ProductData.push({ id: singleProduct.entityId, title: singleProduct.name, price: singleProduct.prices.price.value });
+          let imageurl=singleProduct.defaultImage.url
+          ProductData.push({ id: singleProduct.entityId, title: singleProduct.name, price: singleProduct.prices.price.value, image:imageurl });
         }
 
         return ProductData;
